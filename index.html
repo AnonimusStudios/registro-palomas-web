@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Registro de Palomas</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <header class="app-header">
+      <div>
+        <h1 class="app-title">
+          Registro de Palomas
+          <span class="pill pill-gradient">Panel ultra estético</span>
+        </h1>
+        <p class="app-subtitle">
+          Controla tus palomas, sus capturas y su historia con una interfaz mimada al detalle.
+        </p>
+      </div>
+      <div class="badge">
+        <span class="badge-dot"></span>
+        Datos locales · Sin servidor
+      </div>
+    </header>
+
+    <main class="layout">
+      <!-- Panel izquierdo: formulario y configuración -->
+      <section class="card">
+        <div class="card-header">
+          <h2 class="card-title">
+            <span class="card-dot"></span> Registro / edición
+          </h2>
+          <span class="pill">Validación estricta · DD/MM/AAAA</span>
+        </div>
+        <div class="card-body">
+          <form id="pigeon-form">
+            <input type="hidden" id="edit-index" value="" />
+            <div class="form-grid">
+              <div class="field">
+                <label for="nombre">Nombre</label>
+                <input class="input" id="nombre" autocomplete="off" />
+                <div class="error-text" id="error-nombre"></div>
+              </div>
+
+              <div class="field">
+                <label for="fecha">Fecha de llegada</label>
+                <input
+                  class="input"
+                  id="fecha"
+                  placeholder="DD/MM/AAAA"
+                  autocomplete="off"
+                />
+                <div class="hint">Formato obligatorio: 25/12/2026</div>
+                <div class="error-text" id="error-fecha"></div>
+              </div>
+
+              <div class="field">
+                <label for="color">Color</label>
+                <input class="input" id="color" autocomplete="off" />
+                <div class="error-text" id="error-color"></div>
+              </div>
+
+              <div class="field">
+                <label for="capturas">Capturas</label>
+                <input
+                  class="input"
+                  id="capturas"
+                  type="number"
+                  min="0"
+                  step="1"
+                  autocomplete="off"
+                />
+                <div class="error-text" id="error-capturas"></div>
+              </div>
+
+              <div class="field">
+                <label for="password">Contraseña segura (opcional)</label>
+                <div class="inline-row">
+                  <input class="input" id="password" autocomplete="off" />
+                  <button type="button" class="btn btn-outline btn-sm" id="btn-gen-pass">
+                    Generar
+                  </button>
+                </div>
+                <div class="hint">Útil si cada paloma tiene acceso a algo “secreto”.</div>
+              </div>
+
+              <div class="field">
+                <label for="notas">Notas / detalles</label>
+                <input class="input" id="notas" autocomplete="off" />
+              </div>
+            </div>
+
+            <div class="btn-row">
+              <button type="submit" class="btn btn-primary" id="btn-guardar">
+                Guardar paloma
+              </button>
+              <button type="button" class="btn btn-outline" id="btn-limpiar">
+                Limpiar formulario
+              </button>
+            </div>
+          </form>
+
+          <hr class="divider" />
+
+          <div class="card-title card-title-small">
+            <span class="card-dot"></span> Configuración de usuario
+          </div>
+          <div class="config-row">
+            <input
+              class="input"
+              id="ultima-carpeta"
+              placeholder="Última carpeta utilizada (ej: C:/palomas/registros)"
+            />
+            <button type="button" class="btn btn-outline btn-sm" id="btn-guardar-config">
+              Guardar configuración
+            </button>
+          </div>
+          <div class="hint">
+            Se guarda en un archivo lógico (localStorage) para que la próxima vez se recuerde.
+          </div>
+        </div>
+      </section>
+
+      <!-- Panel derecho: filtros, tabla y estadísticas -->
+      <section class="card">
+        <div class="card-header">
+          <h2 class="card-title">
+            <span class="card-dot"></span> Palomas registradas
+          </h2>
+          <button type="button" class="btn btn-ghost btn-sm" id="btn-reset-filtros">
+            Limpiar filtros
+          </button>
+        </div>
+        <div class="card-body">
+          <div class="filters">
+            <div class="field">
+              <label for="filtro-nombre">Filtrar por nombre</label>
+              <input class="input" id="filtro-nombre" autocomplete="off" />
+            </div>
+            <div class="field">
+              <label for="filtro-color">Filtrar por color</label>
+              <input class="input" id="filtro-color" autocomplete="off" />
+            </div>
+            <div class="field">
+              <label for="filtro-desde">Desde (DD/MM/AAAA)</label>
+              <input class="input" id="filtro-desde" autocomplete="off" />
+            </div>
+            <div class="field">
+              <label for="filtro-hasta">Hasta (DD/MM/AAAA)</label>
+              <input class="input" id="filtro-hasta" autocomplete="off" />
+            </div>
+          </div>
+
+          <div class="table-wrapper">
+            <div class="table-scroll">
+              <table>
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>Nombre</th>
+                    <th>Fecha</th>
+                    <th>Color</th>
+                    <th>Capturas</th>
+                    <th>Historial</th>
+                    <th>Acciones</th>
+                  </tr>
+                </thead>
+                <tbody id="tabla-palomas">
+                  <!-- Filas dinámicas -->
+                </tbody>
+              </table>
+              <div class="empty-state" id="empty-state">
+                No hay palomas que coincidan con los filtros.
+              </div>
+            </div>
+            <div class="stats-row">
+              <div class="stats-group">
+                <div class="stat-pill">
+                  Total palomas: <strong id="stat-total">0</strong>
+                </div>
+                <div class="stat-pill">
+                  Capturas totales: <strong id="stat-capturas">0</strong>
+                </div>
+                <div class="stat-pill">
+                  Capturas promedio: <strong id="stat-promedio">0</strong>
+                </div>
+              </div>
+              <div class="stats-group">
+                <div class="stat-pill">
+                  Última actualización: <strong id="stat-ultima">—</strong>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Popover de historial -->
+    <div class="log-popover" id="log-popover">
+      <div class="log-card">
+        <div class="log-title">
+          <span id="log-title-text">Historial</span>
+          <button type="button" class="btn btn-ghost btn-sm" id="btn-cerrar-log">
+            Cerrar
+          </button>
+        </div>
+        <div class="log-list" id="log-list">
+          <!-- Items dinámicos -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
